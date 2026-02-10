@@ -61,6 +61,7 @@ def parse_args():
     )
     parser.add_argument("--ssl-key", type=str, default=None, help="Path to SSL private key file (optional).")
 
+    parser.add_argument("--insecure", action="store_true", help="Disable SSL verification for backend connection.")
     args = parser.parse_args()
 
     # If one SSL argument is provided, require both
@@ -91,7 +92,11 @@ if __name__ == "__main__":
         print("No SSL cert/key provided, running without SSL")
 
     api_query.set_lcp_mapping(lcp_mapping_file)
-    api_query.set_ca_cert(ca_cert_file)
+    if args.insecure:
+        print("Running in insecure backend mode (ignoring CA cert for backend)")
+        api_query.set_ca_cert(None)
+    else:
+        api_query.set_ca_cert(ca_cert_file)
     api_query.start()
 
     app.json = FilteredJSONProvider(app)

@@ -122,6 +122,13 @@ class ETEdgeModelExecutor(EdgeModelExecutor):
 
         result_dict = result_report.result
 
+        # Check for error reported by client
+        if result_dict and "_error" in result_dict:
+            error_msg = result_dict["_error"]
+            self.log_error(fl_ctx, f"Client reported error: {error_msg}")
+            # Raise an error so the task is marked as failed/rejected
+            raise ValueError(f"Client reported error: {error_msg}")
+
         # Convert the result_dict json to a tensor DXO dict
         self.log_info(fl_ctx, "ETEdgeModelExecutor converting result_dict to tensor DXO")
         result_dict = self._convert_to_tensor_dxo(result_dict, fl_ctx)

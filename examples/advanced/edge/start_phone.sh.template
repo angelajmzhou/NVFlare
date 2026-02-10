@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+# Startup script for phone-only testing
+# This starts only the essential components for a single real iOS device
+# Enhanced with: PYTHONPATH for local NVFlare, lcp_map.json fix, proper cleanup
+
+BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# ============================================================================
+# CONFIGURATION - Edit these paths as needed
+# ============================================================================
+# Path to local NVFlare source (for MPS/hardware acceleration support)
+NVFLARE_SOURCE_DIR="/Users/angel/code/nvflare_exectorch_trial/NVFlare"
+
+# ============================================================================
+# PYTHONPATH Setup - Use local NVFlare source for MPS support
+# ============================================================================
+export PYTHONPATH="$NVFLARE_SOURCE_DIR:$PYTHONPATH"
+echo "📦 Using local NVFlare source: $NVFLARE_SOURCE_DIR"
+
+# ============================================================================
+# Cleanup function
+# ============================================================================
+cleanup() {
+    echo ""
+    echo "🛑 Shutting down NVFlare components..."
+    pkill -f "python.*nvflare" 2>/dev/null || true
+    pkill -f "routing_proxy" 2>/dev/null || true
+    echo "✅ Cleanup complete."
+    exit 0
+}
+trap cleanup SIGINT SIGTERM EXIT
+
+echo "🧹 Cleaning up any existing NVFlare processes..."
+pkill -f "python.*nvflare" 2>/dev/null || true
+pkill -9 -f "python3" 2>/dev/null || true
+sleep 2
+
+# ============================================================================
+# Fix lcp_map.json for single-client (C11 only) routing
+# ============================================================================
+echo "📝 Configuring lcp_map.json for single-client (C11) routing..."
+cat > "$BASE_DIR/scripts/lcp_map.json" << 'EOF'
+{
+  "C11": {"host": "localhost", "port": 9003}
+}
+EOF
+echo "✓ lcp_map.json updated"
+
+echo ""
+echo "Starting phone-only environment..."
+echo "This will start: Server, R1 relay, C1/C11 clients, and HTTP Proxy"
+
+# Start the FL Server
+$BASE_DIR/server/startup/start.sh
+
+# Wait for server to be ready
+sleep 3
+
+# Start Routing Proxy R1 (main proxy for phone connection)
+$BASE_DIR/R1/startup/start.sh
+
+# Start only C1 (parent bridge) and C11 (phone's direct parent)
+$BASE_DIR/C1/startup/start.sh
+$BASE_DIR/C11/startup/start.sh
+
+# Wait a moment for services to initialize
+sleep 2
+
+# Start the HTTP routing proxy for phone connections
+echo ""
+echo "Starting HTTP Routing Proxy on port 4321..."
+mkdir -p "$BASE_DIR/scripts"
+cd "$BASE_DIR/scripts"
+if [ ! -f "rootCA.pem" ]; then
+    touch rootCA.pem
+fi
+python -m nvflare.edge.web.routing_proxy 4321 lcp_map.json rootCA.pem --insecure &
+RP_PID=$!
+echo "Routing Proxy started (PID: $RP_PID)"
+
+echo ""
+echo "✅ Phone environment ready!"
+echo "Your iOS app should connect to: http://<YOUR_IP>:4321"
+echo ""
+echo "Press Ctrl+C to stop all services."
+
+# Wait for background processes
+wait

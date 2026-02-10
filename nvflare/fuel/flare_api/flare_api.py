@@ -17,7 +17,7 @@ import os
 import time
 from typing import List, Optional
 
-from nvflare.apis.fl_constant import AdminCommandNames
+from nvflare.apis.fl_constant import AdminCommandNames, ConnectionSecurity
 from nvflare.apis.job_def import JobMetaKey
 from nvflare.apis.workspace import Workspace
 from nvflare.fuel.common.excepts import ConfigError
@@ -90,6 +90,7 @@ class Session(SessionSpec):
 
         if not secure_mode:
             admin_config[AdminConfigKey.UID_SOURCE] = UidSource.CERT
+            admin_config[AdminConfigKey.CONNECTION_SECURITY] = ConnectionSecurity.CLEAR
 
         self.username = username
         upload_dir = admin_config.get(AdminConfigKey.UPLOAD_DIR)

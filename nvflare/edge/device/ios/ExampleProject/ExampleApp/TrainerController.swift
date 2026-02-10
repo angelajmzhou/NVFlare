@@ -145,6 +145,10 @@ class TrainerController: ObservableObject {
                 print("TrainerController: Using NVFlareDataset with new SDK")
 
                 let dataSource = SimpleDataSource(dataset: swiftDataset)
+                var urlString = serverURL
+                if !urlString.lowercased().hasPrefix("http://") && !urlString.lowercased().hasPrefix("https://") {
+                    urlString = "http://" + urlString
+                }
                 let runner = try NVFlareRunner(
                     jobName: selectedJob.rawValue,
                     dataSource: dataSource,
@@ -155,7 +159,7 @@ class TrainerController: ObservableObject {
                     ],
                     userInfo: [:],
                     jobTimeout: 30.0,
-                    serverURL: serverURL,
+                    serverURL: urlString,
                     allowSelfSignedCerts: true
                 )
                 

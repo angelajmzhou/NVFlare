@@ -72,9 +72,25 @@
 		49EC7DC62E5941A8004D019B /* TrainingConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingConstants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		0BBE87CC2F34589A00B2D01F /* Exceptions for "Frameworks" folder in "ExampleApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			attributesByRelativePath = {
+				threadpool.xcframework = (Required, );
+			};
+			membershipExceptions = (
+				backend_mps.xcframework,
+			);
+			target = 49B127FE2D6D369900BF4EB0 /* ExampleApp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		49B128602D6DA90E00BF4EB0 /* Frameworks */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				0BBE87CC2F34589A00B2D01F /* Exceptions for "Frameworks" folder in "ExampleApp" target */,
+			);
 			path = Frameworks;
 			sourceTree = "<group>";
 		};
@@ -323,6 +339,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -384,6 +401,18 @@
 					"-lc++",
 					"-all_load",
 					"-ld64",
+					"-framework",
+					Accelerate,
+					"-framework",
+					Metal,
+					"-framework",
+					MetalPerformanceShaders,
+					"-framework",
+					MetalPerformanceShadersGraph,
+					"-framework",
+					CoreML,
+
+					"-lsqlite3",
 				);
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
@@ -395,6 +424,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = arm64;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
@@ -448,6 +478,18 @@
 					"-lc++",
 					"-all_load",
 					"-ld64",
+					"-framework",
+					Accelerate,
+					"-framework",
+					Metal,
+					"-framework",
+					MetalPerformanceShaders,
+					"-framework",
+					MetalPerformanceShadersGraph,
+					"-framework",
+					CoreML,
+
+					"-lsqlite3",
 				);
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -465,7 +507,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = L2H3U77RB8;
+				DEVELOPMENT_TEAM = H258T76LF5;
 				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -475,6 +517,7 @@
 				);
 				"FRAMEWORK_SEARCH_PATHS[arch=*]" = "";
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../../../../..";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -491,7 +534,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -527,7 +570,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
-				DEVELOPMENT_TEAM = L2H3U77RB8;
+				DEVELOPMENT_TEAM = H258T76LF5;
 				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
@@ -537,6 +580,7 @@
 				);
 				"FRAMEWORK_SEARCH_PATHS[arch=*]" = "";
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/../../../../../..";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -553,7 +597,7 @@
 				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = "";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

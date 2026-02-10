@@ -251,8 +251,24 @@ class Authenticator:
                     self.logger.error(f"registration rejected: {reason}")
                     raise FLCommunicationError("error:client_registration " + reason)
 
+                # Handle COMM_ERROR and other failure codes - they don't have valid payloads
+                if return_code in [ReturnCode.COMM_ERROR, ReturnCode.INVALID_REQUEST, 
+                                   ReturnCode.PROCESS_EXCEPTION, ReturnCode.SERVICE_UNAVAILABLE]:
+                    reason = result.get_header(MessageHeaderKey.ERROR, "unknown error")
+                    self.logger.warning(f"registration got error response: {return_code}: {reason}")
+                    # Retry instead of crashing
+                    if self.timeout and time.time() - start_time > self.timeout:
+                        raise FLCommunicationError(f"cannot register: server returned {return_code}: {reason}")
+                    time.sleep(self.retry_interval)
+                    continue
+
                 payload = result.payload
+                if payload is None:
+                    self.logger.warning(f"Register payload is None. RC={return_code}. Headers={result.headers}")
+                    payload = {}
+                
                 if not isinstance(payload, dict):
+                    self.logger.error(f"Invalid payload type: {type(payload)}. RC={return_code}")
                     raise FLCommunicationError(f"expect payload to be dict but got {type(payload)}")
 
                 token = payload.get(CellMessageHeaderKeys.TOKEN)

@@ -13,6 +13,7 @@ edge:
   max_sites: 100
   clients: 2
   rp: 4321
+  insecure: true  # Disable SSL for local testing
 
 # The participants are ignored for edge provisioning except admins
 participants:

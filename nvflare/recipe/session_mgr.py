@@ -17,7 +17,7 @@ import tempfile
 from typing import Dict, Optional
 
 from nvflare.fuel.flare_api.api_spec import MonitorReturnCode
-from nvflare.fuel.flare_api.flare_api import Session, new_secure_session
+from nvflare.fuel.flare_api.flare_api import Session, new_secure_session, new_insecure_session
 from nvflare.job_config.api import FedJob
 
 
@@ -49,7 +49,16 @@ class SessionManager:
 
     def _get_session(self):
         """Context manager that provides a session, with optional caching."""
-        sess = new_secure_session(**self.session_params)
+        secure = self.session_params.get("secure", True)
+        if secure:
+            # Filter arguments valid for new_secure_session
+            kwargs = {k: v for k, v in self.session_params.items() if k != "secure"}
+            sess = new_secure_session(**kwargs)
+        else:
+            # Filter arguments valid for new_insecure_session
+            # new_insecure_session(startup_kit_location, debug, timeout)
+            kwargs = {k: v for k, v in self.session_params.items() if k in ["startup_kit_location", "debug", "timeout"]}
+            sess = new_insecure_session(**kwargs)
         return sess
 
     def submit_job(self, job: FedJob) -> str:

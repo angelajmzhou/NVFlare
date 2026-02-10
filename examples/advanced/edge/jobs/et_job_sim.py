@@ -12,6 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Use local NVFlare source for MPS/hardware acceleration support
+import sys
+sys.path.insert(0, "/Users/angel/code/nvflare_exectorch_trial/NVFlare")
+
+"""
+Simulator version of et_job.py - runs locally without needing NVFlare server.
+Use this for local testing without connectivity/authentication issues.
+"""
+
 import argparse
 import os
 
@@ -22,19 +31,15 @@ from nvflare.edge.tools.et_fed_buff_recipe import (
     ModelManagerConfig,
     SimulationConfig,
 )
-from nvflare.recipe.prod_env import ProdEnv
+from nvflare.recipe.sim_env import SimEnv
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--export_job", action="store_true")
 parser.add_argument("--dataset", type=str, default="cifar10")
-parser.add_argument("--workspace_dir", type=str, default="/tmp/nvflare/workspaces")
-parser.add_argument("--project_name", type=str, default="edge_example")
-parser.add_argument("--total_num_of_devices", type=int, default=1)
-parser.add_argument("--num_of_simulated_devices_on_each_leaf", type=int, default=0)
+parser.add_argument("--num_clients", type=int, default=2, help="Number of simulated clients")
+parser.add_argument("--total_num_of_devices", type=int, default=4)
+parser.add_argument("--num_of_simulated_devices_on_each_leaf", type=int, default=1)
 args = parser.parse_args()
 
-prod_dir = os.path.join(args.workspace_dir, args.project_name, "prod_00")
-admin_startup_kit_dir = os.path.join(prod_dir, "admin@nvidia.com")
 total_num_of_devices = args.total_num_of_devices
 num_of_simulated_devices_on_each_leaf = args.num_of_simulated_devices_on_each_leaf
 
@@ -43,7 +48,7 @@ if args.dataset == "cifar10":
     from processors.models.cifar10_model import TrainingNet
 
     dataset_root = "/tmp/nvflare/cifar10"
-    job_name = "cifar10_et"
+    job_name = "cifar10_et_sim"
     device_model = TrainingNet()
     batch_size = 4
     input_shape = (batch_size, 3, 32, 32)
@@ -65,7 +70,7 @@ elif args.dataset == "xor":
     from processors.models.xor_model import TrainingNet
     from processors.xor_et_task_processor import XorETTaskProcessor
 
-    job_name = "xor_et"
+    job_name = "xor_et_sim"
     device_model = TrainingNet()
     batch_size = 1
     input_shape = (batch_size, 2)
@@ -106,17 +111,15 @@ recipe = ETFedBuffRecipe(
     device_training_params={"epoch": 3, "lr": 0.0001, "batch_size": batch_size},
 )
 
-recipe.job.min_clients = 1
+print("Running in SIMULATOR mode - no server connection needed!")
+print(f"Number of clients: {args.num_clients}")
+print()
 
-if args.export_job:
-    output_dir = os.path.join(admin_startup_kit_dir, "transfer")
-    print(f"Exporting recipe to {output_dir}")
-    recipe.export(job_dir=output_dir)
-else:
-    env = ProdEnv(startup_kit_location=admin_startup_kit_dir, username="admin@nvidia.com", secure_mode=False)
-    run = recipe.execute(env)
-    print()
-    print("Result can be found in :", run.get_result())
-    print("Job Status is:", run.get_status())
-    print()
+# Use SimEnv instead of ProdEnv - runs locally without server
+env = SimEnv(num_clients=args.num_clients)
+result = recipe.execute(env)
 
+print()
+print("Simulation complete!")
+print("Result workspace:", result)
+print()

@@ -416,7 +416,7 @@ class AdminAPI(AdminAPISpec, StreamableEngine):
             client_name=self.user_name,
             client_type=ClientType.ADMIN,
             expected_sp_identity=self.server_identity,
-            secure_mode=True,  # always True to authenticate the cell endpoint!
+            secure_mode=secure_conn,
             root_cert_file=self.ca_cert,
             private_key_file=self.client_key,
             cert_file=self.client_cert,
@@ -433,18 +433,19 @@ class AdminAPI(AdminAPISpec, StreamableEngine):
             abort_signal=abort_signal,
         )
 
-        if not isinstance(token_verifier, TokenVerifier):
+        if secure_conn and not isinstance(token_verifier, TokenVerifier):
             raise RuntimeError(f"expect token_verifier to be TokenVerifier but got {type(token_verifier)}")
 
         set_add_auth_headers_filters(self.cell, self.user_name, token, token_signature, ssid)
 
-        self.cell.core_cell.add_incoming_filter(
-            channel="*",
-            topic="*",
-            cb=validate_auth_headers,
-            token_verifier=token_verifier,
-            logger=self.logger,
-        )
+        if token_verifier:
+            self.cell.core_cell.add_incoming_filter(
+                channel="*",
+                topic="*",
+                cb=validate_auth_headers,
+                token_verifier=token_verifier,
+                logger=self.logger,
+            )
         self.debug(f"Successfully authenticated to {self.server_identity}: {token=} {ssid=}")
 
         self.aux_runner = AuxRunner(self)

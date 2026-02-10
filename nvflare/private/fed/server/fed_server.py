@@ -334,7 +334,7 @@ class FederatedServer(BaseServer):
         self.workspace = args.workspace
         self.snapshot_location = None
         self.overseer_agent = overseer_agent
-        self.server_state: ServerState = ColdState()
+        self.server_state: ServerState = HotState()  # Start in HotState for local testing without overseer
         self.snapshot_persistor = snapshot_persistor
         self.checking_server_state = False
         self.ha_mode = False

@@ -100,7 +100,7 @@ public class SwiftCIFAR10Dataset: NSObject, NVFlareDataset {
     // MARK: - NVFlareDataset Protocol Methods
     
     @objc(getInputDimensions) public func getInputDimensions() -> [Int] {
-        return [imageWidth, imageHeight, channels] // CIFAR-10: 32x32x3
+        return [channels, imageHeight, imageWidth] // CIFAR-10: 3x32x32 (CHW)
     }
     
     @objc(getOutputDimensions) public func getOutputDimensions() -> [Int] {

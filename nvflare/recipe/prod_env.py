@@ -48,6 +48,7 @@ class ProdEnv(ExecEnv):
         startup_kit_location: str,
         login_timeout: float = 5.0,
         username: str = DEFAULT_ADMIN_USER,
+        secure_mode: bool = True,
         extra: Optional[dict] = None,
     ):
         """Production execution environment for submitting and monitoring NVFlare jobs.
@@ -58,6 +59,7 @@ class ProdEnv(ExecEnv):
             startup_kit_location (str): Path to the admin's startup kit directory.
             login_timeout (float): Timeout (in seconds) for logging into the Flare API session. Must be > 0.
             username (str): Username to log in with.
+            secure_mode (bool): Whether to use secure connection. Defaults to True.
             extra: extra env info.
         """
         super().__init__(extra)
@@ -71,6 +73,7 @@ class ProdEnv(ExecEnv):
         self.startup_kit_location = v.startup_kit_location
         self.login_timeout = v.login_timeout
         self.username = v.username
+        self.secure_mode = secure_mode
         self._session_manager = None  # Lazy initialization
 
     def get_job_status(self, job_id: str) -> Optional[str]:
@@ -103,6 +106,7 @@ class ProdEnv(ExecEnv):
                 "username": self.username,
                 "startup_kit_location": self.startup_kit_location,
                 "timeout": self.login_timeout,
+                "secure": self.secure_mode,
             }
             self._session_manager = SessionManager(session_params)
         return self._session_manager

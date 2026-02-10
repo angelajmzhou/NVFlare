@@ -65,6 +65,36 @@ def export_model(net: nn.Module, input_tensor_example, label_tensor_example):
     ep = _export_forward_backward(ep)
     # Lower the graph to edge dialect.
     ep = to_edge(ep)
+
+    # Try MPS Partitioning
+    import os
+    if os.environ.get("NVFLARE_EDGE_ENABLE_MPS", "1") == "1":
+        try:
+            from executorch.backends.apple.mps.partition import MPSPartitioner
+            print("NVFlare: Partitioning implementation for MPS...")
+            # Use empty list for compile_specs as validated in testing
+            ep = ep.to_backend(MPSPartitioner(compile_specs=[]))
+            print("NVFlare: MPS Partitioning successful.")
+        except ImportError:
+            pass
+        except Exception as e:
+            print(f"NVFlare: MPS Partitioning failed: {e}")
+    else:
+        print("NVFlare: Skipping MPS Partitioning (Pure CPU requested via env)")
+        # Fallback to XNNPACK if available, since portable kernels might be missing on client
+        try:
+            from executorch.backends.xnnpack.partition.xnnpack_partitioner import XnnpackPartitioner
+            from executorch.exir.backend.backend_details import CompileSpec
+
+            print("NVFlare: Attempting XNNPACK Partitioning for CPU execution...")
+            # XNNPACK optimization
+            ep = ep.to_backend(XnnpackPartitioner())
+            print("NVFlare: XNNPACK Partitioning successful.")
+        except ImportError:
+            print("NVFlare: XnnpackPartitioner not found. Using default CPU (Portable) kernels.")
+        except Exception as e:
+            print(f"NVFlare: XNNPACK Partitioning failed: {e}. Using default CPU (Portable) kernels.")
+
     # Lower the graph to executorch.
     ep = ep.to_executorch()
     return ep
